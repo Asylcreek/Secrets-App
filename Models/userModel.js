@@ -7,14 +7,14 @@ const passportLocalMongoose = require('passport-local-mongoose');
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
-        // required: [true, 'Please provide your email address'],
-        // unique: true,
+        required: [true, 'Please provide your email address'],
+        unique: true,
         lowercase: true,
         validate: [validator.isEmail, 'Please enter a valid email address'],
     },
     password: {
         type: String,
-        // required: [true, 'Please provide a password'],
+        required: [true, 'Please provide a password'],
         minlength: [8, 'Your password should have more than 7 characters'],
         // select: false,
     },
@@ -36,15 +36,15 @@ userSchema.pre('save', function(next) {
     next();
 });
 
-// userSchema.pre('save', async function(next) {
-//     //Check if password has been hashed
-//     if (!this.isModified('password')) return next();
+userSchema.pre('save', async function(next) {
+    //Check if password has been hashed
+    if (!this.isModified('password')) return next();
 
-//     //Hash password
-//     this.password = await bcrypt.hash(this.password, 12);
+    //Hash password
+    this.password = await bcrypt.hash(this.password, 12);
 
-//     next();
-// });
+    next();
+});
 
 userSchema.methods.correctPassword = async function(
     candidatePassword,

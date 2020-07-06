@@ -8,4 +8,6 @@ router.route('/').get(routeController.renderHomePage);
 
 router.route('/secrets').get(routeController.renderSecrets);
 
+router.route('/logout').get(routeController.logout);
+
 module.exports = router;

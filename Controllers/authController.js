@@ -1,59 +1,60 @@
-const session = require('express-session');
 const passport = require('passport');
-const passportLocalMongoose = require('passport-local-mongoose');
 const User = require('../Models/userModel');
 
-exports.signup = async(req, res, next) => {
-    try {
-        const email = req.body.username;
-        const password = req.body.password;
-        const passwordConfirm = req.body.passwordConfirm;
+exports.signup = (req, res) => {
+    const email = req.body.username;
+    const password = req.body.password;
+    const passwordConfirm = req.body.passwordConfirm;
 
-        if (!email || !password || !passwordConfirm) {
-            res.render('register', { error: 'All fields are required' });
-            return next();
-        }
-
-        if (password !== passwordConfirm) {
-            res.render('register', {
-                error: 'Password and confirm password are different. Please try again',
-            });
-            return next();
-        }
-
-        // console.log(user);
-
-        const newUser = await User.register({ username: email }, password);
-
-        const { user } = await User.authenticate()(newUser.username, password);
-        console.log(user);
-
-        // res.redirect('/login');
-        res.redirect('/secrets');
-
-        next();
-    } catch (err) {
-        console.log(err);
+    if (!email || !password || !passwordConfirm) {
+        return res.render('register', { error: 'All fields are required' });
     }
+
+    if (password !== passwordConfirm) {
+        return res.render('register', {
+            error: 'Password and confirm password are different. Please try again',
+        });
+    }
+
+    User.register({ username: email, password }, password, function(err, user) {
+        if (err) {
+            console.log(err);
+            return res.redirect('/register');
+        }
+
+        passport.authenticate('local')(req, res, function() {
+            res.redirect('/secrets');
+        });
+    });
 };
 
 exports.login = async(req, res, next) => {
     try {
-        const email = req.body.username;
+        const username = req.body.username;
         const password = req.body.password;
 
-        const user = await User.findOne({ email });
+        if (!username || !password)
+            return res.render('login', { error: 'Both fields are required' });
+
+        const user = await User.findOne({ username });
+
+        if (!user)
+            return res.render('login', {
+                error: "Please <a class='btn-link' href='/register'>register</a> first.",
+            });
 
         if (!(await user.correctPassword(password, user.password))) {
             error = 'Email or password mismatch';
-            res.render('login', { error });
-
-            return next();
+            return res.render('login', { error });
         }
 
-        res.redirect('/secrets');
-
-        next();
+        req.login(user, function(err) {
+            if (err) {
+                console.log(err);
+                return next(err);
+            }
+            res.redirect('/secrets');
+        });
     } catch (err) {
         console.log(err);
     }
