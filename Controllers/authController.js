@@ -1,4 +1,5 @@
 const passport = require('passport');
+
 const User = require('../Models/userModel');
 
 exports.signup = (req, res) => {
@@ -16,6 +17,7 @@ exports.signup = (req, res) => {
         });
     }
 
+    //Add the user to the database
     User.register({ username, email: username, password }, password, function(
         err,
         user
@@ -25,6 +27,7 @@ exports.signup = (req, res) => {
             return res.redirect('/register');
         }
 
+        //If no error, authenticate user
         passport.authenticate('local')(req, res, function() {
             res.redirect('/secrets');
         });
@@ -46,11 +49,13 @@ exports.login = async(req, res, next) => {
                 error: "Please <a class='btn-link' href='/register'>register</a> first.",
             });
 
+        //Check if password entered corresponds with password in database
         if (!(await user.correctPassword(password, user.password))) {
             error = 'Email or password mismatch';
             return res.render('login', { error });
         }
 
+        //Log the user in
         req.login(user, function(err) {
             if (err) {
                 console.log(err);
@@ -61,4 +66,20 @@ exports.login = async(req, res, next) => {
     } catch (err) {
         console.log(err);
     }
+};
+
+exports.googleLogin = passport.authenticate('google', {
+    scope: ['profile', 'email'],
+});
+
+exports.googleLoginSuccess = (req, res) => {
+    res.redirect('/secrets');
+};
+
+exports.facebookLogin = passport.authenticate('facebook', {
+    scope: ['email'],
+});
+
+exports.facebookLoginSuccess = (req, res) => {
+    res.redirect('/secrets');
 };
