@@ -5,27 +5,19 @@ const passport = require('passport');
 const passportLocalMongoose = require('passport-local-mongoose');
 
 const userSchema = new mongoose.Schema({
-    username: {
+    email: {
         type: String,
         required: [true, 'Please provide your email address'],
         unique: true,
         lowercase: true,
         validate: [validator.isEmail, 'Please enter a valid email address'],
     },
+    username: String,
     password: {
         type: String,
         required: [true, 'Please provide a password'],
         minlength: [8, 'Your password should have more than 7 characters'],
-        // select: false,
-    },
-    passwordConfirm: {
-        type: String,
-        validate: {
-            validator: function(el) {
-                return el === this.password;
-            },
-            message: 'The passwords do not match. Please try again!',
-        },
+        select: false,
     },
     dateCreated: Date,
 });

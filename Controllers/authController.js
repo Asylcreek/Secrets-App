@@ -2,11 +2,11 @@ const passport = require('passport');
 const User = require('../Models/userModel');
 
 exports.signup = (req, res) => {
-    const email = req.body.username;
+    const username = req.body.username;
     const password = req.body.password;
     const passwordConfirm = req.body.passwordConfirm;
 
-    if (!email || !password || !passwordConfirm) {
+    if (!username || !password || !passwordConfirm) {
         return res.render('register', { error: 'All fields are required' });
     }
 
@@ -16,7 +16,10 @@ exports.signup = (req, res) => {
         });
     }
 
-    User.register({ username: email, password }, password, function(err, user) {
+    User.register({ username, email: username, password }, password, function(
+        err,
+        user
+    ) {
         if (err) {
             console.log(err);
             return res.redirect('/register');
