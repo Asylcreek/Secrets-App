@@ -23,4 +23,9 @@ router
     .route('/auth/facebook/secrets')
     .get(authController.facebookLogin, authController.facebookLoginSuccess);
 
+router
+    .route('/submit')
+    .get(routeController.submit)
+    .post(routeController.createSecret);
+
 module.exports = router;

@@ -7,6 +7,8 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
 const FacebookStrategy = require('passport-facebook');
 
+const Secret = require('./secretModel');
+
 const userSchema = new mongoose.Schema({
     email: {
         type: String,
@@ -24,6 +26,7 @@ const userSchema = new mongoose.Schema({
     },
     googleId: String,
     facebookId: String,
+    secrets: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Secret' }],
     dateCreated: Date,
 });
 

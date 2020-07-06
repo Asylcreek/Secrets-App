@@ -42,7 +42,7 @@ exports.login = async(req, res, next) => {
         if (!username || !password)
             return res.render('login', { error: 'Both fields are required' });
 
-        const user = await User.findOne({ username });
+        const user = await User.findOne({ username }).select('+password');
 
         if (!user)
             return res.render('login', {
